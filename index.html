@@ -6,26 +6,24 @@
 <title>Ligne 8 — Prochains métros</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=DSEG7+Classic:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:ital,wght@0,500;0,600;0,700;0,800;0,900;1,700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ratp-blue:#003ca6;
+    --ratp-blue-dark:#002a73;
     --ratp-yellow:#ffcd00;
     --line8:#ceadd2;
-    --line8-dark:#7a5a82;
-    --bg:#f2f0ee;
-    --panel:#111214;
-    --panel-led:#ffcd00;
+    --line8-text:#25303b;
+    --bg:#eef0f3;
     --card:#ffffff;
-    --ink:#1b1b1f;
+    --ink:#25303b;
     --muted:#6b6b72;
-    --ok:#1a8a4a;
     --err:#c0392b;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
-    font-family:'Archivo',system-ui,-apple-system,sans-serif;
+    font-family:'Barlow Semi Condensed',system-ui,-apple-system,sans-serif;
     background:var(--bg);
     color:var(--ink);
     display:flex;
@@ -38,128 +36,137 @@
   .masthead{
     display:flex;align-items:center;gap:10px;margin-bottom:18px;
   }
-  .roundel{
-    width:40px;height:40px;border-radius:50%;
-    background:var(--ratp-blue);
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;
-  }
-  .roundel span{color:var(--ratp-yellow);font-weight:800;font-size:19px;}
-  .masthead h1{font-size:15px;margin:0;letter-spacing:.3px;}
-  .masthead .sub{font-size:12px;color:var(--muted);margin-top:1px;}
-  .line-badge{
-    margin-left:auto;
-    width:34px;height:34px;border-radius:50%;
-    background:var(--line8);
-    display:flex;align-items:center;justify-content:center;
-    font-weight:800;color:#2e1f33;font-size:17px;
-    box-shadow:inset 0 0 0 2px rgba(255,255,255,.5);
-  }
+  .roundel{width:40px;height:40px;flex-shrink:0;display:block;}
+  .masthead .wordmark{font-size:17px;font-weight:800;margin:0;letter-spacing:.01em;text-transform:uppercase;}
+  .masthead .sub{font-size:12px;color:var(--muted);margin-top:0;font-weight:500;}
+  .line-badge{width:36px;height:36px;flex-shrink:0;display:block;margin-left:auto;}
 
   /* ---- controls card ---- */
   .card{
     background:var(--card);
-    border-radius:16px;
+    border-radius:14px;
     padding:16px;
     box-shadow:0 1px 3px rgba(0,0,0,.08);
     margin-bottom:16px;
   }
-  label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;}
+  label{display:block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:6px;}
   select, input[type=text], input[type=password]{
-    width:100%;padding:11px 12px;border-radius:10px;border:1px solid #ddd;
-    font-size:14px;font-family:inherit;background:#fff;color:var(--ink);
+    width:100%;padding:11px 12px;border-radius:9px;border:1px solid #d9d9dc;
+    font-size:15px;font-family:inherit;font-weight:600;background:#fff;color:var(--ink);
   }
   .row{margin-bottom:14px;}
   .dir-toggle{display:flex;gap:8px;}
   .dir-btn{
-    flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid #ddd;
-    background:#fff;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink);
-    transition:.12s;
+    flex:1;padding:10px 8px;border-radius:9px;border:1.5px solid #d9d9dc;
+    background:#fff;font-size:13.5px;font-weight:700;cursor:pointer;color:var(--ink);
+    font-family:inherit;transition:.12s;
   }
   .dir-btn.active{
-    border-color:var(--line8-dark);
+    border-color:var(--line8-text);
     background:var(--line8);
-    color:#2e1f33;
+    color:var(--line8-text);
   }
   .key-toggle{
-    font-size:11.5px;color:var(--muted);cursor:pointer;text-decoration:underline;
-    margin-top:10px;display:inline-block;
+    font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline;
+    margin-top:10px;display:inline-block;font-weight:600;
   }
   .key-box{display:none;margin-top:10px;}
   .key-box.show{display:block;}
-  .key-help{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
+  .key-help{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5;}
   .key-help b{color:var(--ink);}
 
-  /* ---- the "keychain" device ---- */
+  /* ---- the real-time platform panel (PANAM-style, matching real signage) ---- */
   .device{
-    background:var(--panel);
-    border-radius:20px;
-    padding:14px;
-    box-shadow:0 8px 24px rgba(0,0,0,.25);
+    background:#000;
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 10px 28px rgba(0,0,0,.28);
+    border:1px solid #1c1c1e;
   }
-  .device-strip{
-    background:var(--line8);
-    border-radius:10px;
-    padding:9px 12px;
-    display:flex;align-items:center;gap:8px;
-    margin-bottom:12px;
+  .device-top{
+    background:linear-gradient(180deg,#e2e2e4,#cfcfd2);
+    padding:10px 12px 9px;
+    display:flex;align-items:center;gap:9px;
+    border-bottom:2px solid #a9a9ac;
   }
-  .device-strip .m{
-    width:20px;height:20px;border-radius:50%;background:var(--ratp-blue);
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  }
-  .device-strip .m span{color:var(--ratp-yellow);font-weight:800;font-size:11px;}
-  .device-strip .ln{
-    width:20px;height:20px;border-radius:50%;background:#fff;
-    display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    font-weight:800;font-size:11px;color:#2e1f33;
-  }
-  .device-strip .dest{
-    font-weight:800;font-size:12.5px;color:#2e1f33;flex:1;
+  .device-top .m-sm, .device-top .ln-sm{width:24px;height:24px;flex-shrink:0;display:block;}
+  .device-top .station{
+    color:#161618;font-weight:800;font-size:20px;flex:1;letter-spacing:0;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .device-strip .clock{
-    font-weight:800;font-size:12.5px;color:#2e1f33;
-    background:rgba(255,255,255,.55);padding:2px 6px;border-radius:5px;
+
+  .device-main{display:flex;min-height:112px;}
+  .device-black{
+    flex:1.3;background:#000;
+    display:flex;align-items:stretch;
   }
-  .device-body{display:flex;align-items:stretch;}
-  .slot{flex:1;text-align:center;padding:10px 4px 4px;}
-  .slot .label{color:#9a9a9a;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+  .slot{flex:1;text-align:center;padding:12px 4px 8px;display:flex;flex-direction:column;justify-content:center;}
+  .slot .label{color:#9a9a9a;font-size:10.5px;text-transform:none;letter-spacing:.02em;margin-bottom:6px;font-weight:600;}
   .slot .num{
-    font-family:'DSEG7 Classic',monospace;
-    font-size:46px;color:var(--panel-led);
-    text-shadow:0 0 10px rgba(255,205,0,.45);
-    line-height:1;
+    font-family:'Barlow Semi Condensed',sans-serif;
+    font-weight:900;
+    font-size:46px;color:var(--ratp-yellow);
+    line-height:.85;
   }
-  .slot .mn{color:#8d8d93;font-size:10.5px;margin-top:4px;}
-  .divider{width:1px;background:#2b2c2f;margin:6px 0;}
+  .slot .mn{color:var(--ratp-yellow);font-size:11.5px;margin-top:5px;font-weight:700;text-transform:uppercase;}
+  .v-divider{width:1px;background:#3a3a3c;align-self:center;height:60%;}
+
+  .device-white{
+    flex:1.1;background:#e6eef5;
+    padding:9px 10px;
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .device-white .msg-top{display:flex;align-items:center;justify-content:space-between;}
+  .device-white .info-icon{
+    width:17px;height:17px;border-radius:50%;background:#1f6fb2;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    color:#fff;font-weight:800;font-size:11px;font-style:italic;font-family:Georgia,serif;
+  }
+  .device-white .clock{
+    font-weight:800;font-size:12.5px;color:#fff;font-variant-numeric:tabular-nums;
+    background:#0e1b3c;padding:2px 7px;border-radius:4px;
+  }
+  .device-white .dir-dest{font-weight:600;font-size:13px;color:#1a1a1a;line-height:1.3;}
+  .device-white .dir-dest .dir-label{font-weight:800;}
+
+  .device-accent{height:7px;background:#28282a;}
+
   .device-status{
-    text-align:center;color:#8d8d93;font-size:11px;padding:14px 6px 6px;
+    background:#000;color:#9a9a9a;font-size:11.5px;font-weight:500;
+    padding:9px 12px;text-align:center;border-top:1px solid #1c1c1e;
   }
   .device-status.err{color:#e5756a;}
 
   .foot{
     display:flex;justify-content:space-between;align-items:center;
-    margin-top:12px;font-size:11px;color:var(--muted);
+    margin-top:12px;font-size:11.5px;color:var(--muted);font-weight:500;
   }
   .refresh-btn{
-    background:none;border:1px solid #ccc;border-radius:8px;
-    padding:6px 10px;font-size:11.5px;color:var(--ink);cursor:pointer;
+    background:none;border:1px solid #c9c9cc;border-radius:8px;
+    padding:6px 10px;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;
+    font-family:inherit;
   }
   .refresh-btn:active{transform:scale(.96);}
-  .credit{font-size:10.5px;color:#aaa;text-align:center;margin-top:16px;line-height:1.5;}
+  .credit{font-size:11px;color:#9a9a9f;text-align:center;margin-top:16px;line-height:1.6;font-weight:500;}
+  .credit .ratp-logo{height:22px;display:block;margin:0 auto 8px;}
 </style>
 </head>
 <body>
 <div class="app">
 
   <div class="masthead">
-    <div class="roundel"><span>M</span></div>
+    <svg class="roundel" viewBox="0 0 283.46 283.46" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="141.73" cy="141.73" r="132.515" fill="#FFF" stroke="#25303B" stroke-width="18.43"/>
+      <path fill="#25303B" d="M212.25,205.15V81.5c0-7.09-3.9-14.53-15.6-14.53-8.85,0-12.4,3.9-16.29,11.69l-38.27,79.73h-.35L103.11,78.66C99.21,70.87,95.67,67,86.81,67,75.12,67,71.22,74.41,71.22,81.5V205.15c0,6.74,5.32,10.64,11.7,10.64,5.66,0,12-3.9,12-10.64V113h.36L130.4,184.6c2.47,5,5.67,7.8,11.34,7.8s8.85-2.84,11.33-7.8L188.15,113h.36v92.12c0,6.74,6.37,10.64,12.05,10.64,6.37,0,11.69-3.9,11.69-10.64"/>
+    </svg>
     <div>
-      <h1>RATP · Métro Paris</h1>
+      <p class="wordmark">RATP · Métro Paris</p>
       <div class="sub">Prochains passages en temps réel</div>
     </div>
-    <div class="line-badge">8</div>
+    <svg class="line-badge" viewBox="0 0 283.46 283.46" xmlns="http://www.w3.org/2000/svg">
+      <circle fill="#CEADD2" cx="141.73" cy="141.73" r="141.73"/>
+      <path fill="#25303B" d="M195.36 175c0-19.8-12.12-32.57-26-39.14 14.05-8.53 21.28-20.43 21.28-34.49 0-25.75-21.92-38.73-48.32-38.73-25.72 0-48.29 17.24-48.29 42.14 0 15.54 8.1 25.75 21.07 33.83-14.47 7.44-25.75 20-25.75 40 0 22.77 18.94 42.75 52.33 42.75 30.86 0 53.63-17.86 53.63-46.37M162 103.32c0 9.36-8.51 19.15-16.4 22.76-9.57-4-21.9-11.69-21.9-24 0-10.43 7.44-17.66 19.14-17.66 12.36 0 19.16 8.5 19.16 18.94m2.34 74c0 11.92-7.87 21.91-22.14 21.91-14.46 0-22.55-11.69-22.55-24 0-11.71 9.78-22.34 19.57-26.18 12.78 6.39 25.12 14.68 25.12 28.31"/>
+    </svg>
   </div>
 
   <div class="card">
@@ -185,25 +192,40 @@
   </div>
 
   <div class="device">
-    <div class="device-strip">
-      <div class="m"><span>M</span></div>
-      <div class="ln">8</div>
-      <div class="dest" id="destLabel">—</div>
-      <div class="clock" id="clock">--:--</div>
+    <div class="device-top">
+      <svg class="m-sm" viewBox="0 0 283.46 283.46" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="141.73" cy="141.73" r="132.515" fill="#FFF" stroke="#25303B" stroke-width="18.43"/>
+        <path fill="#25303B" d="M212.25,205.15V81.5c0-7.09-3.9-14.53-15.6-14.53-8.85,0-12.4,3.9-16.29,11.69l-38.27,79.73h-.35L103.11,78.66C99.21,70.87,95.67,67,86.81,67,75.12,67,71.22,74.41,71.22,81.5V205.15c0,6.74,5.32,10.64,11.7,10.64,5.66,0,12-3.9,12-10.64V113h.36L130.4,184.6c2.47,5,5.67,7.8,11.34,7.8s8.85-2.84,11.33-7.8L188.15,113h.36v92.12c0,6.74,6.37,10.64,12.05,10.64,6.37,0,11.69-3.9,11.69-10.64"/>
+      </svg>
+      <svg class="ln-sm" viewBox="0 0 283.46 283.46" xmlns="http://www.w3.org/2000/svg">
+        <circle fill="#CEADD2" cx="141.73" cy="141.73" r="141.73"/>
+        <path fill="#25303B" d="M195.36 175c0-19.8-12.12-32.57-26-39.14 14.05-8.53 21.28-20.43 21.28-34.49 0-25.75-21.92-38.73-48.32-38.73-25.72 0-48.29 17.24-48.29 42.14 0 15.54 8.1 25.75 21.07 33.83-14.47 7.44-25.75 20-25.75 40 0 22.77 18.94 42.75 52.33 42.75 30.86 0 53.63-17.86 53.63-46.37M162 103.32c0 9.36-8.51 19.15-16.4 22.76-9.57-4-21.9-11.69-21.9-24 0-10.43 7.44-17.66 19.14-17.66 12.36 0 19.16 8.5 19.16 18.94m2.34 74c0 11.92-7.87 21.91-22.14 21.91-14.46 0-22.55-11.69-22.55-24 0-11.71 9.78-22.34 19.57-26.18 12.78 6.39 25.12 14.68 25.12 28.31"/>
+      </svg>
+      <div class="station" id="stationLabel">—</div>
     </div>
-    <div class="device-body" id="deviceBody">
-      <div class="slot">
-        <div class="label">1er métro</div>
-        <div class="num" id="t1">··</div>
-        <div class="mn" id="t1dest">&nbsp;</div>
+    <div class="device-main" id="deviceBody">
+      <div class="device-black">
+        <div class="slot">
+          <div class="label">1er métro</div>
+          <div class="num" id="t1">··</div>
+          <div class="mn" id="t1dest">&nbsp;</div>
+        </div>
+        <div class="v-divider"></div>
+        <div class="slot">
+          <div class="label">2e métro</div>
+          <div class="num" id="t2">··</div>
+          <div class="mn" id="t2dest">&nbsp;</div>
+        </div>
       </div>
-      <div class="divider"></div>
-      <div class="slot">
-        <div class="label">2ème métro</div>
-        <div class="num" id="t2">··</div>
-        <div class="mn" id="t2dest">&nbsp;</div>
+      <div class="device-white">
+        <div class="msg-top">
+          <div class="info-icon">i</div>
+          <div class="clock" id="clock">--:--</div>
+        </div>
+        <div class="dir-dest"><span class="dir-label">Direction</span> <span id="destLabel">—</span></div>
       </div>
     </div>
+    <div class="device-accent"></div>
     <div class="device-status" id="status">Introduce tu clé API para empezar</div>
   </div>
 
@@ -213,6 +235,29 @@
   </div>
 
   <div class="credit">
+    <svg class="ratp-logo" viewBox="0 0 577.08 314.49" xmlns="http://www.w3.org/2000/svg">
+      <g>
+        <g>
+          <path fill="#0a0082" d="M289.68,191.78h-8.33c-1.18,0-2.15.96-2.15,2.15v1.94h5.96v4.49c-.52.3-1.05.55-1.6.74-1.19.4-2.42.61-3.7.61-1.37,0-2.62-.22-3.75-.66-1.13-.44-2.11-1.07-2.94-1.89-.83-.82-1.48-1.78-1.93-2.89-.45-1.1-.68-2.3-.68-3.6s.23-2.54.68-3.64c.45-1.1,1.1-2.06,1.93-2.87.83-.81,1.83-1.43,2.98-1.87,1.15-.44,2.4-.66,3.75-.66s2.68.24,3.84.72c1.16.48,2.25,1.22,3.25,2.22l3.02-2.94c-1.2-1.37-2.68-2.41-4.43-3.13-1.75-.71-3.72-1.07-5.9-1.07-2.01,0-3.86.33-5.55.97-1.69.65-3.17,1.57-4.43,2.76-1.26,1.19-2.24,2.59-2.92,4.21-.69,1.62-1.03,3.38-1.03,5.3s.34,3.68,1.03,5.29c.69,1.62,1.65,3.02,2.9,4.21,1.25,1.19,2.71,2.11,4.39,2.76,1.68.65,3.52.97,5.53.97,1.81,0,3.61-.28,5.39-.83,1.78-.55,3.34-1.37,4.69-2.45v-10.84Z"/>
+          <path fill="#0a0082" d="M317.77,193.81c.88-1.36,1.32-2.98,1.32-4.87,0-2.87-.97-5.11-2.92-6.73-1.95-1.62-4.64-2.43-8.07-2.43h-8.41c-1.19,0-2.15.96-2.15,2.15v23.59h4.78v-7.54h6.8s5.26,7.54,5.26,7.54h5.15l-5.92-8.44c1.18-.4,2.98-1.44,4.15-3.27ZM312.67,185.15c1.07.88,1.6,2.15,1.6,3.79s-.53,2.88-1.6,3.79c-1.07.91-2.65,1.36-4.76,1.36h-5.59v-10.26h5.59c2.11,0,3.7.44,4.76,1.32Z"/>
+          <path fill="#0a0082" d="M338.03,179.41c-7.71,0-13.86,5.37-13.86,13.24s6.16,13.24,13.86,13.24,13.86-5.37,13.86-13.24-6-13.24-13.86-13.24ZM338.03,201.7c-5.37,0-9.05-3.95-9.05-9.05s3.68-9.04,9.05-9.04,9.05,3.83,9.05,9.04-3.57,9.05-9.05,9.05Z"/>
+          <path fill="#0a0082" d="M376.16,194.12c0,2.65-.56,4.57-1.69,5.77-1.13,1.2-2.73,1.8-4.82,1.8s-3.7-.6-4.84-1.8c-1.14-1.2-1.71-3.13-1.71-5.77v-14.34h-4.78v14.52c0,3.75,1,6.62,3,8.6,2,1.99,4.76,2.98,8.29,2.98s6.26-.99,8.25-2.98c2-1.99,3-4.85,3-8.6v-14.52h-4.71v14.34Z"/>
+          <path fill="#0a0082" d="M405.59,180.89c-1.63-.74-3.59-1.1-5.87-1.1h-8.44c-1.19,0-2.15.96-2.15,2.15v23.59h4.78v-7.54h5.81c2.28,0,4.23-.37,5.87-1.1,1.63-.74,2.89-1.79,3.77-3.16.88-1.37,1.32-2.89,1.32-4.78s-.44-3.52-1.32-4.89c-.88-1.37-2.14-2.43-3.77-3.16ZM404.27,192.74c-1.07.9-2.65,1.34-4.76,1.34h-5.59v-10.26h5.59c2.11,0,3.7.44,4.76,1.32s1.6,2.15,1.6,3.79-.53,2.91-1.6,3.81Z"/>
+          <path fill="#0a0082" d="M421.83,201.48v-7.06h12.43v-3.93h-12.43v-6.66h14.01v-4.04h-18.79v23.59c0,1.19.96,2.15,2.15,2.15h17.16v-4.04h-14.52Z"/>
+        </g>
+        <g>
+          <path fill="#0a0082" d="M306.99,150.5c7.32-3.59,12.37-11.12,12.37-19.83,0-12.19-9.88-22.07-22.08-22.07h-24.98c-3.35,0-6.07,2.72-6.07,6.07v55.19h14.18v-17.11h13.01l11.84,17.11h15.23l-13.5-19.36ZM294.64,141.21h-14.23v-21.08h14.23c5.82,0,10.54,4.72,10.54,10.54s-4.72,10.54-10.54,10.54Z"/>
+          <path fill="#0a0082" d="M360.03,108.9c-5.23-1.26-10.38,1.42-12.46,6.1-6.09,13.71-24.37,54.85-24.37,54.85h14.53l3.9-9.38h31.5l3.9,9.38h14.88s-18.38-40.99-24.51-54.65c-1.39-3.1-4.07-5.51-7.37-6.31ZM346.06,149.84l11.33-27.23,11.32,27.23h-22.65Z"/>
+          <polygon fill="#0a0082" points="382.85 120.15 402.45 120.15 402.45 169.86 416.63 169.86 416.63 120.15 436.23 120.15 436.23 108.6 382.85 108.6 382.85 120.15"/>
+          <path fill="#0a0082" d="M475.62,108.6h-26.78c-3.35,0-6.07,2.72-6.07,6.07v55.19h14.18v-15.67h18.67c12.59,0,22.8-10.21,22.8-22.8s-10.21-22.8-22.8-22.8ZM484.23,131.4c0,6.22-5.04,11.26-11.26,11.26h-16.03v-22.52h16.03c6.22,0,11.26,5.04,11.26,11.26h0Z"/>
+        </g>
+      </g>
+      <g>
+        <path fill="#009a93" d="M154.72,212.44c-29.3-1.36-52.64-25.54-52.64-55.18,0-5.8.9-11.39,2.56-16.65-.68-.6-1.36-1.18-1.73-1.46-6.09-4.41-12.1-6.45-20.2-6.81-2.77,8.3-4.21,17.21-4.03,26.46.83,42.07,34.55,75.78,76.15,77.07-1.12-8.54-1.15-16.23-.1-23.43Z"/>
+        <path fill="#009a93" d="M235.97,155.72c-.85-43.43-36.76-77.94-80.19-77.09-24.32.48-45.84,11.94-59.92,29.56,8.19,1.74,15.48,4.75,21.68,9,.32.22.66.46,1.02.73,9.97-9.83,23.66-15.9,38.77-15.9,30.51,0,55.25,24.74,55.25,55.25,0,21.29-12.06,39.76-29.71,48.99-.71,1.78-1.3,3.57-1.75,5.37-1.54,6.15-1.72,12.77-.59,20.79,32.69-10.07,56.16-40.8,55.45-76.69Z"/>
+      </g>
+      <path fill="#0a0082" d="M167.3,159.07c.24-3.43-.78-7.67-4.19-8.12-.68-.11-2.72-.45-2.72-.45-1.01-.12-1.77-.93-1.82-1.92,0-.02-.48-8.46-.48-8.48-.45-5.53-4.2-6.83-7.9-6.34-.56.07-8.99,1.31-11.86,1.86-8.2,1.59-13.83-1.7-18.02-5.58-1.81-1.81-5.22-4.76-7.31-6.19-6.64-4.55-14.54-7.23-22.57-8.46-3.6-.55-7.23-.81-10.79-.81-3.13,0-6.19.2-9.14.58-1.65,3.43-3.09,6.97-4.33,10.6,4.23-.97,8.98-1.55,13.88-1.55,11.55,0,19.72,2.69,27.61,8.41,3.31,2.4,9.08,9.26,19.77,12.3,1.28.36,2.66.47,4.07.47,3.01,0,6.18-.61,8.94-1.11,2.85-.55,4.94-.86,6.45-.86,4.69,0,3.93,2.97,3.59,10.92.08,7.63,8.64,1.44,9.57,7.88.15,1.11.31,2.77.48,4.51.08.78.26,2.62,2.18,2.62.83,0,1.73-.33,3.16-1.09,2.16-1.14,2.77-.61,2.98-.39.22.26.42.86.17,2.25-.77,4.17.42,6.99,4.57,7.48,1.81.21,2.93.79,3.32,1.72.81,1.92-1.43,5.04-2.38,6.33-6.19,8.47-9.89,16.93-11.51,26.08-1.29,7.29-1.27,15.01-.12,23.51.67,5.01,1.73,10.29,3.14,15.9h10.29c-1.67-6.12-2.95-11.81-3.73-17.19-1.27-8.75-1.2-16.67.7-24.29,1.95-7.81,5.83-15.29,12.17-23.02,4.78-5.83,3.51-14.49-5.48-15.27-1.55-.2-2.77-.36-4.02-1.84-1.19-1.52-1.03-5.27-1.04-7.22,0-4.21-2.89-4.47-3.98-4.56-.39-.02-1.93-.17-3.62,1.3Z"/>
+    </svg>
     Datos: PRIM — Île-de-France Mobilités (SIRI Lite stop-monitoring).<br>
     No es una app oficial RATP/IDFM. Actualiza cada 30 s.
   </div>
@@ -341,7 +386,8 @@ async function load(){
   const apiKey = (localStorage.getItem('primApiKey') || '').trim();
   const [name, ids] = STATIONS[stationSel.value];
   const targetTerminus = currentDir === 'west' ? WEST_TERMINUS : EAST_TERMINUS;
-  document.getElementById('destLabel').textContent = name + ' → ' + targetTerminus;
+  document.getElementById('stationLabel').textContent = name;
+  document.getElementById('destLabel').textContent = targetTerminus;
 
   if (!apiKey) {
     statusEl.textContent = 'Introduce tu clé API PRIM arriba para empezar';
@@ -401,7 +447,7 @@ async function load(){
 
 function setSlots(t1, t2){
   const fmt = (t) => {
-    if (!t) return ['··', ' '];
+    if (!t) return ['··', ' '];
     if (t.mins <= 0) return ['0', 'Entrando'];
     return [String(t.mins), t.mins + ' mn'];
   };
