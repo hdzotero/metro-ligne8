@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ligne 8 — Prochains métros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=DSEG7+Classic:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ratp-blue:#003ca6;
+    --ratp-yellow:#ffcd00;
+    --line8:#ceadd2;
+    --line8-dark:#7a5a82;
+    --bg:#f2f0ee;
+    --panel:#111214;
+    --panel-led:#ffcd00;
+    --card:#ffffff;
+    --ink:#1b1b1f;
+    --muted:#6b6b72;
+    --ok:#1a8a4a;
+    --err:#c0392b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Archivo',system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:28px 14px 60px;
+  }
+  .app{width:100%;max-width:440px;}
+
+  /* ---- RATP masthead ---- */
+  .masthead{
+    display:flex;align-items:center;gap:10px;margin-bottom:18px;
+  }
+  .roundel{
+    width:40px;height:40px;border-radius:50%;
+    background:var(--ratp-blue);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .roundel span{color:var(--ratp-yellow);font-weight:800;font-size:19px;}
+  .masthead h1{font-size:15px;margin:0;letter-spacing:.3px;}
+  .masthead .sub{font-size:12px;color:var(--muted);margin-top:1px;}
+  .line-badge{
+    margin-left:auto;
+    width:34px;height:34px;border-radius:50%;
+    background:var(--line8);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:#2e1f33;font-size:17px;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.5);
+  }
+
+  /* ---- controls card ---- */
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    padding:16px;
+    box-shadow:0 1px 3px rgba(0,0,0,.08);
+    margin-bottom:16px;
+  }
+  label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px;}
+  select, input[type=text], input[type=password]{
+    width:100%;padding:11px 12px;border-radius:10px;border:1px solid #ddd;
+    font-size:14px;font-family:inherit;background:#fff;color:var(--ink);
+  }
+  .row{margin-bottom:14px;}
+  .dir-toggle{display:flex;gap:8px;}
+  .dir-btn{
+    flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid #ddd;
+    background:#fff;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink);
+    transition:.12s;
+  }
+  .dir-btn.active{
+    border-color:var(--line8-dark);
+    background:var(--line8);
+    color:#2e1f33;
+  }
+  .key-toggle{
+    font-size:11.5px;color:var(--muted);cursor:pointer;text-decoration:underline;
+    margin-top:10px;display:inline-block;
+  }
+  .key-box{display:none;margin-top:10px;}
+  .key-box.show{display:block;}
+  .key-help{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
+  .key-help b{color:var(--ink);}
+
+  /* ---- the "keychain" device ---- */
+  .device{
+    background:var(--panel);
+    border-radius:20px;
+    padding:14px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);
+  }
+  .device-strip{
+    background:var(--line8);
+    border-radius:10px;
+    padding:9px 12px;
+    display:flex;align-items:center;gap:8px;
+    margin-bottom:12px;
+  }
+  .device-strip .m{
+    width:20px;height:20px;border-radius:50%;background:var(--ratp-blue);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .device-strip .m span{color:var(--ratp-yellow);font-weight:800;font-size:11px;}
+  .device-strip .ln{
+    width:20px;height:20px;border-radius:50%;background:#fff;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    font-weight:800;font-size:11px;color:#2e1f33;
+  }
+  .device-strip .dest{
+    font-weight:800;font-size:12.5px;color:#2e1f33;flex:1;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .device-strip .clock{
+    font-weight:800;font-size:12.5px;color:#2e1f33;
+    background:rgba(255,255,255,.55);padding:2px 6px;border-radius:5px;
+  }
+  .device-body{display:flex;align-items:stretch;}
+  .slot{flex:1;text-align:center;padding:10px 4px 4px;}
+  .slot .label{color:#9a9a9a;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+  .slot .num{
+    font-family:'DSEG7 Classic',monospace;
+    font-size:46px;color:var(--panel-led);
+    text-shadow:0 0 10px rgba(255,205,0,.45);
+    line-height:1;
+  }
+  .slot .mn{color:#8d8d93;font-size:10.5px;margin-top:4px;}
+  .divider{width:1px;background:#2b2c2f;margin:6px 0;}
+  .device-status{
+    text-align:center;color:#8d8d93;font-size:11px;padding:14px 6px 6px;
+  }
+  .device-status.err{color:#e5756a;}
+
+  .foot{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-top:12px;font-size:11px;color:var(--muted);
+  }
+  .refresh-btn{
+    background:none;border:1px solid #ccc;border-radius:8px;
+    padding:6px 10px;font-size:11.5px;color:var(--ink);cursor:pointer;
+  }
+  .refresh-btn:active{transform:scale(.96);}
+  .credit{font-size:10.5px;color:#aaa;text-align:center;margin-top:16px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <div class="roundel"><span>M</span></div>
+    <div>
+      <h1>RATP · Métro Paris</h1>
+      <div class="sub">Prochains passages en temps réel</div>
+    </div>
+    <div class="line-badge">8</div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label for="station">Station</label>
+      <select id="station"></select>
+    </div>
+    <div class="row">
+      <label>Direction</label>
+      <div class="dir-toggle">
+        <button class="dir-btn" id="dirWest" data-dir="west"></button>
+        <button class="dir-btn" id="dirEast" data-dir="east"></button>
+      </div>
+    </div>
+    <span class="key-toggle" id="keyToggle">Clé API PRIM (gratuite) ▾</span>
+    <div class="key-box" id="keyBox">
+      <input type="password" id="apiKey" placeholder="Pega aquí tu clé API PRIM">
+      <div class="key-help">
+        Los datos en tiempo real vienen de <b>PRIM (Île-de-France Mobilités)</b>, la plataforma oficial.
+        Regístrate gratis en <b>prim.iledefrance-mobilites.fr</b> → menú de usuario → "Mes jetons d'authentification" → genera un token, y pégalo aquí (se guarda solo en este navegador).
+      </div>
+    </div>
+  </div>
+
+  <div class="device">
+    <div class="device-strip">
+      <div class="m"><span>M</span></div>
+      <div class="ln">8</div>
+      <div class="dest" id="destLabel">—</div>
+      <div class="clock" id="clock">--:--</div>
+    </div>
+    <div class="device-body" id="deviceBody">
+      <div class="slot">
+        <div class="label">1er métro</div>
+        <div class="num" id="t1">··</div>
+        <div class="mn" id="t1dest">&nbsp;</div>
+      </div>
+      <div class="divider"></div>
+      <div class="slot">
+        <div class="label">2ème métro</div>
+        <div class="num" id="t2">··</div>
+        <div class="mn" id="t2dest">&nbsp;</div>
+      </div>
+    </div>
+    <div class="device-status" id="status">Introduce tu clé API para empezar</div>
+  </div>
+
+  <div class="foot">
+    <span id="updated">Sin datos aún</span>
+    <button class="refresh-btn" id="refreshBtn">↻ Actualizar</button>
+  </div>
+
+  <div class="credit">
+    Datos: PRIM — Île-de-France Mobilités (SIRI Lite stop-monitoring).<br>
+    No es una app oficial RATP/IDFM. Actualiza cada 30 s.
+  </div>
+
+</div>
+
+<script>
+// Line 8 stations, Balard -> Créteil-Pointe du Lac, with both platform stop_ids
+// (source: IDFM open dataset "arrets-lignes", filtered mode=Metro shortname=8)
+const STATIONS = [
+  ["Balard", [22186, 463051]],
+  ["Lourmel", [463211, 22187]],
+  ["Boucicaut", [22188, 463135]],
+  ["Félix Faure", [22189, 463163]],
+  ["Commerce", [22190, 463162]],
+  ["La Motte-Picquet - Grenelle", [22183, 463201]],
+  ["École Militaire", [463177, 22191]],
+  ["La Tour-Maubourg", [463204, 22192]],
+  ["Invalides", [463199, 22193]],
+  ["Concorde", [22096, 463151]],
+  ["Madeleine", [22194, 463063]],
+  ["Opéra", [463244, 22195]],
+  ["Richelieu - Drouot", [463037, 22196]],
+  ["Grands Boulevards", [463058, 22197]],
+  ["Bonne Nouvelle", [22198, 463115]],
+  ["Strasbourg - Saint-Denis", [463312, 22159]],
+  ["République", [462962, 22199]],
+  ["Filles du Calvaire", [463048, 22200]],
+  ["Saint-Sébastien - Froissart", [22201, 463309]],
+  ["Chemin Vert", [463146, 22202]],
+  ["Bastille", [22097, 463000]],
+  ["Ledru-Rollin", [463195, 22203]],
+  ["Faidherbe - Chaligny", [22204, 463172]],
+  ["Reuilly - Diderot", [22098, 463293]],
+  ["Montgallet", [463241, 22205]],
+  ["Daumesnil", [22184, 463168]],
+  ["Michel Bizot", [463226, 22206]],
+  ["Porte Dorée", [463050, 22207]],
+  ["Porte de Charenton", [22208, 463277]],
+  ["Liberté", [22209, 463209]],
+  ["Charenton - Écoles", [463142, 22210]],
+  ["École Vétérinaire de Maisons-Alfort", [22214, 463047]],
+  ["Maisons-Alfort - Stade", [22215, 463225]],
+  ["Maisons-Alfort - Les Juilliottes", [463015, 22216]],
+  ["Créteil - L'Échat", [463166, 22211]],
+  ["Créteil - Université", [463167, 22212]],
+  ["Créteil - Préfecture", [463056, 22213]],
+  ["Créteil - Pointe du Lac", [463057, 21784]],
+];
+const WEST_TERMINUS = "Balard";
+const EAST_TERMINUS = "Pointe du Lac"; // matches "Créteil - Pointe du Lac" destination text too
+
+const stationSel = document.getElementById('station');
+STATIONS.forEach(([name], i) => {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = name;
+  stationSel.appendChild(o);
+});
+
+const dirWestBtn = document.getElementById('dirWest');
+const dirEastBtn = document.getElementById('dirEast');
+dirWestBtn.textContent = '← ' + WEST_TERMINUS;
+dirEastBtn.textContent = EAST_TERMINUS + ' →';
+
+let currentDir = 'east';
+dirWestBtn.addEventListener('click', () => { currentDir = 'west'; setDirActive(); load(); });
+dirEastBtn.addEventListener('click', () => { currentDir = 'east'; setDirActive(); load(); });
+function setDirActive(){
+  dirWestBtn.classList.toggle('active', currentDir === 'west');
+  dirEastBtn.classList.toggle('active', currentDir === 'east');
+}
+setDirActive();
+
+const keyToggle = document.getElementById('keyToggle');
+const keyBox = document.getElementById('keyBox');
+const apiKeyInput = document.getElementById('apiKey');
+apiKeyInput.value = localStorage.getItem('primApiKey') || '';
+if (apiKeyInput.value) keyToggle.textContent = 'Clé API PRIM (guardada) ▾';
+keyToggle.addEventListener('click', () => keyBox.classList.toggle('show'));
+if (!apiKeyInput.value) keyBox.classList.add('show');
+apiKeyInput.addEventListener('change', () => {
+  localStorage.setItem('primApiKey', apiKeyInput.value.trim());
+  load();
+});
+
+stationSel.addEventListener('change', load);
+document.getElementById('refreshBtn').addEventListener('click', load);
+
+function tickClock(){
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+}
+tickClock();
+setInterval(tickClock, 1000);
+
+async function fetchStopMonitoring(stopId, apiKey){
+  const ref = encodeURIComponent(`STIF:StopPoint:Q:${stopId}:`);
+  const url = `https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${ref}`;
+  const res = await fetch(url, {
+    headers: { 'apikey': apiKey, 'Accept': 'application/json' }
+  });
+  if (!res.ok) {
+    const err = new Error('HTTP ' + res.status);
+    err.status = res.status;
+    throw err;
+  }
+  return res.json();
+}
+
+function extractVisits(json){
+  try {
+    const delivery = json.Siri.ServiceDelivery.StopMonitoringDelivery[0];
+    return delivery.MonitoredStopVisit || [];
+  } catch(e){ return []; }
+}
+
+function minutesFromNow(iso){
+  if (!iso) return null;
+  const diffMs = new Date(iso).getTime() - Date.now();
+  return Math.round(diffMs / 60000);
+}
+
+async function load(){
+  const statusEl = document.getElementById('status');
+  const apiKey = (localStorage.getItem('primApiKey') || '').trim();
+  const [name, ids] = STATIONS[stationSel.value];
+  const targetTerminus = currentDir === 'west' ? WEST_TERMINUS : EAST_TERMINUS;
+  document.getElementById('destLabel').textContent = name + ' → ' + targetTerminus;
+
+  if (!apiKey) {
+    statusEl.textContent = 'Introduce tu clé API PRIM arriba para empezar';
+    statusEl.classList.remove('err');
+    setSlots(null, null);
+    return;
+  }
+
+  statusEl.textContent = 'Consultando…';
+  statusEl.classList.remove('err');
+
+  try {
+    const results = await Promise.allSettled(ids.map(id => fetchStopMonitoring(id, apiKey)));
+    let visits = [];
+    let authError = false;
+    results.forEach(r => {
+      if (r.status === 'fulfilled') visits = visits.concat(extractVisits(r.value));
+      else if (r.reason && (r.reason.status === 401 || r.reason.status === 403)) authError = true;
+    });
+
+    if (authError && visits.length === 0) {
+      statusEl.textContent = 'Clé API inválida o sin permisos para este API (401/403)';
+      statusEl.classList.add('err');
+      setSlots(null, null);
+      return;
+    }
+
+    const trains = visits.map(v => {
+      const mvj = v.MonitoredVehicleJourney || {};
+      const dest = (mvj.DestinationName && mvj.DestinationName[0] && mvj.DestinationName[0].value) || '';
+      const call = mvj.MonitoredCall || {};
+      const iso = call.ExpectedDepartureTime || call.ExpectedArrivalTime || call.AimedDepartureTime;
+      return { dest, mins: minutesFromNow(iso) };
+    })
+    .filter(t => t.mins !== null && t.mins >= 0 && t.dest.toLowerCase().includes(targetTerminus.toLowerCase()))
+    .sort((a,b) => a.mins - b.mins);
+
+    if (trains.length === 0) {
+      statusEl.textContent = 'Sin próximos pasos en este sentido ahora mismo';
+      setSlots(null, null);
+    } else {
+      statusEl.textContent = '';
+      setSlots(trains[0], trains[1]);
+    }
+
+    const now = new Date();
+    document.getElementById('updated').textContent =
+      'Actualizado ' + String(now.getHours()).padStart(2,'0') + ':' +
+      String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+
+  } catch (e) {
+    statusEl.textContent = 'Error de red o CORS al consultar PRIM';
+    statusEl.classList.add('err');
+    setSlots(null, null);
+  }
+}
+
+function setSlots(t1, t2){
+  const fmt = (t) => {
+    if (!t) return ['··', ' '];
+    if (t.mins <= 0) return ['0', 'Entrando'];
+    return [String(t.mins), t.mins + ' mn'];
+  };
+  const [n1, l1] = fmt(t1);
+  const [n2, l2] = fmt(t2);
+  document.getElementById('t1').textContent = n1;
+  document.getElementById('t1dest').textContent = l1;
+  document.getElementById('t2').textContent = n2;
+  document.getElementById('t2dest').textContent = l2;
+}
+
+load();
+setInterval(load, 30000);
+</script>
+</body>
+</html>
