@@ -181,14 +181,6 @@
         <button class="dir-btn" id="dirEast" data-dir="east"></button>
       </div>
     </div>
-    <span class="key-toggle" id="keyToggle">Clé API PRIM (gratuite) ▾</span>
-    <div class="key-box" id="keyBox">
-      <input type="password" id="apiKey" placeholder="Pega aquí tu clé API PRIM">
-      <div class="key-help">
-        Los datos en tiempo real vienen de <b>PRIM (Île-de-France Mobilités)</b>, la plataforma oficial.
-        Regístrate gratis en <b>prim.iledefrance-mobilites.fr</b> → menú de usuario → "Mes jetons d'authentification" → genera un token, y pégalo aquí (se guarda solo en este navegador).
-      </div>
-    </div>
   </div>
 
   <div class="device">
@@ -226,7 +218,7 @@
       </div>
     </div>
     <div class="device-accent"></div>
-    <div class="device-status" id="status">Introduce tu clé API para empezar</div>
+    <div class="device-status" id="status">Cargando…</div>
   </div>
 
   <div class="foot">
@@ -331,18 +323,6 @@ function setDirActive(){
 }
 setDirActive();
 
-const keyToggle = document.getElementById('keyToggle');
-const keyBox = document.getElementById('keyBox');
-const apiKeyInput = document.getElementById('apiKey');
-apiKeyInput.value = localStorage.getItem('primApiKey') || '';
-if (apiKeyInput.value) keyToggle.textContent = 'Clé API PRIM (guardada) ▾';
-keyToggle.addEventListener('click', () => keyBox.classList.toggle('show'));
-if (!apiKeyInput.value) keyBox.classList.add('show');
-apiKeyInput.addEventListener('change', () => {
-  localStorage.setItem('primApiKey', apiKeyInput.value.trim());
-  load();
-});
-
 stationSel.addEventListener('change', load);
 document.getElementById('refreshBtn').addEventListener('click', load);
 
@@ -354,12 +334,10 @@ function tickClock(){
 tickClock();
 setInterval(tickClock, 1000);
 
-async function fetchStopMonitoring(stopId, apiKey){
-  const ref = encodeURIComponent(`STIF:StopPoint:Q:${stopId}:`);
-  const url = `https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=${ref}`;
-  const res = await fetch(url, {
-    headers: { 'apikey': apiKey, 'Accept': 'application/json' }
-  });
+const PROXY_BASE = 'https://metro-ligne8-proxy.ligne8.workers.dev';
+
+async function fetchStopMonitoring(stopId){
+  const res = await fetch(`${PROXY_BASE}/schedule?stopId=${stopId}`);
   if (!res.ok) {
     const err = new Error('HTTP ' + res.status);
     err.status = res.status;
@@ -383,33 +361,25 @@ function minutesFromNow(iso){
 
 async function load(){
   const statusEl = document.getElementById('status');
-  const apiKey = (localStorage.getItem('primApiKey') || '').trim();
   const [name, ids] = STATIONS[stationSel.value];
   const targetTerminus = currentDir === 'west' ? WEST_TERMINUS : EAST_TERMINUS;
   document.getElementById('stationLabel').textContent = name;
   document.getElementById('destLabel').textContent = targetTerminus;
 
-  if (!apiKey) {
-    statusEl.textContent = 'Introduce tu clé API PRIM arriba para empezar';
-    statusEl.classList.remove('err');
-    setSlots(null, null);
-    return;
-  }
-
   statusEl.textContent = 'Consultando…';
   statusEl.classList.remove('err');
 
   try {
-    const results = await Promise.allSettled(ids.map(id => fetchStopMonitoring(id, apiKey)));
+    const results = await Promise.allSettled(ids.map(id => fetchStopMonitoring(id)));
     let visits = [];
-    let authError = false;
+    let proxyError = false;
     results.forEach(r => {
       if (r.status === 'fulfilled') visits = visits.concat(extractVisits(r.value));
-      else if (r.reason && (r.reason.status === 401 || r.reason.status === 403)) authError = true;
+      else proxyError = true;
     });
 
-    if (authError && visits.length === 0) {
-      statusEl.textContent = 'Clé API inválida o sin permisos para este API (401/403)';
+    if (proxyError && visits.length === 0) {
+      statusEl.textContent = 'No se pudo consultar el servicio en este momento';
       statusEl.classList.add('err');
       setSlots(null, null);
       return;
@@ -439,7 +409,7 @@ async function load(){
       String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
 
   } catch (e) {
-    statusEl.textContent = 'Error de red o CORS al consultar PRIM';
+    statusEl.textContent = 'Error de red al consultar el servicio';
     statusEl.classList.add('err');
     setSlots(null, null);
   }
